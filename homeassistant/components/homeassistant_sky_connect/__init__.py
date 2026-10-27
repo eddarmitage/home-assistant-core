@@ -70,7 +70,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         """Handle USB port events."""
         current_entries_by_path = {
             entry.data[DEVICE]: entry
-            for entry in hass.config_entries.async_entries(DOMAIN)
+            for entry in hass.config_entries.async_entries(DOMAIN, include_ignore=False)
         }
 
         for device in added | removed:
