@@ -350,7 +350,19 @@ async def test_setup_fails_on_missing_usb_port(hass: HomeAssistant) -> None:
 
 
 @pytest.mark.usefixtures("force_usb_polling_watcher")
-async def test_usb_device_reactivity(hass: HomeAssistant) -> None:
+@pytest.mark.parametrize(
+    "other_entries",
+    [
+        pytest.param([], id="no_other_entries"),
+        pytest.param(
+            [MockConfigEntry(domain=DOMAIN, source=SOURCE_IGNORE, data={})],
+            id="ignored_entry",
+        ),
+    ],
+)
+async def test_usb_device_reactivity(
+    hass: HomeAssistant, other_entries: list[MockConfigEntry]
+) -> None:
     """Test setting up USB monitoring."""
     assert await async_setup_component(hass, USB_DOMAIN, {"usb": {}})
 
@@ -376,6 +388,9 @@ async def test_usb_device_reactivity(hass: HomeAssistant) -> None:
     )
 
     config_entry.add_to_hass(hass)
+
+    for other_entry in other_entries:
+        other_entry.add_to_hass(hass)
 
     with patch(
         "homeassistant.components.homeassistant_connect_zbt2.async_is_serial_port_present"
